@@ -1,0 +1,25 @@
+frappe.ui.form.on('Item','validate',  function(frm) {
+	        var cur_doc = frm.doc;
+            frappe.model.set_value(cur_doc.doctype, cur_doc.name, "custom_bar_code", cur_doc.item_code);
+            if (cur_doc.custom_barcode_gener === 0) {
+                if(cur_doc.custom_bar_code){
+                    $(frm.fields_dict['custom_barcode_image'].wrapper).html('<svg id="code128"></svg>');
+                    $.getScript("/assets/frappe/js/lib/JsBarcode.all.min.js", function( data, textStatus, jqxhr ) {
+                    JsBarcode("#code128", cur_doc.custom_bar_code, {
+                          height: 40,
+                          width: 2,
+                          fontSize: 11,
+                          flat: true,
+                          background: "#FFFFFF"
+                    });
+                    var svg = $('#code128').parent().html();
+                    frappe.model.set_value(cur_doc.doctype, cur_doc.name, "custom_barcode_svg", svg);
+                    frappe.model.set_value(cur_doc.doctype, cur_doc.name, "custom_barcode_gener", 1);
+                    cur_frm.save();
+                });
+                } else 
+                {
+                    frappe.msgprint(__("Eles Please enter Barcode to to be printed"));
+                }
+            } 
+})
